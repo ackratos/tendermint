@@ -124,6 +124,21 @@ func (bcR *BlockchainReactor) OnStop() {
 	bcR.pool.Stop()
 }
 
+// SwitchToBlockchain switches from fastest_sync mode to blockchain mode.
+// It resets the state, turns off fastest_sync, and starts the blockchain state-machine
+func (bcR *BlockchainReactor) SwitchToBlockchain(state sm.State) {
+	bcR.Logger.Info("SwitchToBlockchain")
+	bcR.initialState = state
+
+	bcR.fastSync = true
+
+	err := bcR.pool.Start()
+	if err != nil {
+		bcR.Logger.Error("Error starting blockchainReactor", "err", err)
+		return
+	}
+}
+
 // GetChannels implements Reactor
 func (bcR *BlockchainReactor) GetChannels() []*p2p.ChannelDescriptor {
 	return []*p2p.ChannelDescriptor{
